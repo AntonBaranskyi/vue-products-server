@@ -1,15 +1,18 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import dotenv from 'dotenv';
 
 import userRouter from './routes/auth.js';
 import Order from './models/Order.js';
 import Product from './models/Product.js';
 
+dotenv.config();
+
+const { DB_HOST, PORT = 5000 } = process.env;
+
 mongoose
-  .connect(
-    'mongodb+srv://antonbaranskij12:wwwwww@cluster0.do3dnl7.mongodb.net/product-service?retryWrites=true&w=majority'
-  )
+  .connect(DB_HOST)
   .then(() => {
     console.log('DB IS OK');
   })
@@ -46,6 +49,6 @@ app.get('/products', async (req, resp) => {
   }
 });
 
-app.listen(5000, () => {
+app.listen(PORT, () => {
   console.log('SERVER IS WORKING');
 });
