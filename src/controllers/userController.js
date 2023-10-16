@@ -74,6 +74,8 @@ export const login = async (req, resp) => {
     const { passwordHash, ...userData } = user._doc;
     resp.json({ ...userData, token });
   } catch (error) {
-    console.log(error);
+    resp.status(404).json({
+      message: 'Invalid login or password',
+    });
   }
 };
