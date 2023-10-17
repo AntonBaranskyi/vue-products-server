@@ -79,3 +79,29 @@ export const login = async (req, resp) => {
     });
   }
 };
+
+export const getAllUsers = async (req, resp) => {
+  try {
+    const allUsers = await User.find();
+
+    console.log(allUsers);
+
+    resp.status(200).json(allUsers);
+  } catch (error) {
+    console.log(error);
+    resp.status(404).json({
+      message: 'Error with fetching all users data',
+    });
+  }
+};
+
+export const uploadAvatar = async (req, resp) => {
+  try {
+    const file = req.files;
+  } catch (error) {
+    console.log(error);
+    resp.status(400).json({
+      message: 'Upload avatar error',
+    });
+  }
+};
