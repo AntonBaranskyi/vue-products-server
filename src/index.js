@@ -31,14 +31,23 @@ app.use(express.static('static'));
 
 app.use('/auth', userRouter);
 
-app.get('/orders', async (req, resp) => {
+app.get('/orders', async (req, res) => {
   try {
-    const allOrders = await Order.find();
+    const updatedOrdersWithProducts = await Order.aggregate([
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'id',
+          foreignField: 'order',
+          as: 'products',
+        },
+      },
+    ]);
 
-    resp.status(200).json(allOrders);
+    res.status(200).json(updatedOrdersWithProducts);
   } catch (error) {
-    console.log(error);
-    resp.status(403);
+    console.error(error);
+    res.status(500).json({ message: 'Помилка на сервері' });
   }
 });
 
