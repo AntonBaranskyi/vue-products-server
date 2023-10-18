@@ -7,6 +7,8 @@ import userRouter from './routes/auth.js';
 import Order from './models/Order.js';
 import Product from './models/Product.js';
 import { getAllUsers } from './controllers/userController.js';
+import { Server } from 'socket.io';
+import { http } from 'http';
 
 dotenv.config();
 
@@ -24,10 +26,24 @@ mongoose
   });
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 
 app.use(express.json());
 app.use(cors());
 app.use(express.static('static'));
+
+const connectionUser = new Set();
+
+io.on('connection', (socket) => {
+  connectionUser.add(socket.id);
+
+  socket.on('disconnect', () => {
+    connectedUsers.delete(socket.id);
+  });
+
+  io.emit('userCount', connectedUsers.size);
+});
 
 app.use('/auth', userRouter);
 
