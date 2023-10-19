@@ -8,7 +8,7 @@ import Order from './models/Order.js';
 import Product from './models/Product.js';
 import { getAllUsers } from './controllers/userController.js';
 import { Server } from 'socket.io';
-import { http } from 'http';
+import { createServer } from 'node:http';
 
 dotenv.config();
 
@@ -26,23 +26,38 @@ mongoose
   });
 
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origins: [
+      'http://127.0.0.1:5174/',
+      'https://vue-products-server.onrender.com',
+    ],
+  },
+});
 
 app.use(express.json());
 app.use(cors());
 app.use(express.static('static'));
 
-const connectionUser = new Set();
+const usersCount = new Set();
 
 io.on('connection', (socket) => {
-  connectionUser.add(socket.id);
+  console.log('connected');
+  usersCount.add(socket.id);
 
+  console.log(usersCount.size);
   socket.on('disconnect', () => {
-    connectedUsers.delete(socket.id);
+    console.log('user disconect');
+
+    usersCount.delete(socket.id);
   });
 
-  io.emit('userCount', connectedUsers.size);
+  socket.emit('userCount', usersCount.size);
+});
+
+app.use('/', (req, resp) => {
+  resp.send('Hello');
 });
 
 app.use('/auth', userRouter);
@@ -80,6 +95,6 @@ app.get('/products', async (req, resp) => {
 
 app.get('/users', getAllUsers);
 
-app.listen(PORT, () => {
-  console.log('SERVER IS WORKING');
+server.listen(PORT, () => {
+  console.log('SERVER IS WORKING on ' + PORT);
 });
