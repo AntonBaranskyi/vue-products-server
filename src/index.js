@@ -53,7 +53,7 @@ io.on('connection', (socket) => {
     usersCount.delete(socket.id);
   });
 
-  socket.emit('userCount', usersCount.size);
+  io.emit('userCount', usersCount.size);
 });
 
 app.use('/auth', userRouter);
