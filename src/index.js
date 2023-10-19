@@ -56,10 +56,6 @@ io.on('connection', (socket) => {
   socket.emit('userCount', usersCount.size);
 });
 
-app.use('/', (req, resp) => {
-  resp.send('Hello');
-});
-
 app.use('/auth', userRouter);
 
 app.get('/orders', async (req, res) => {
