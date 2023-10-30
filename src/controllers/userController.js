@@ -1,8 +1,9 @@
 import { validationResult } from 'express-validator';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-
+// import uuid from 'uuid';
 import User from '../models/User.js';
+// import { config } from 'dotenv';
 
 export const register = async (req, resp) => {
   try {
@@ -95,13 +96,17 @@ export const getAllUsers = async (req, resp) => {
   }
 };
 
-export const uploadAvatar = async (req, resp) => {
-  try {
-    const file = req.files;
-  } catch (error) {
-    console.log(error);
-    resp.status(400).json({
-      message: 'Upload avatar error',
-    });
-  }
-};
+// export const uploadAvatar = async (req, resp) => {
+//   try {
+//     const file = req.files;
+
+//     const user = await User.findById(req.user.id);
+//     const avatarName = uuid.v4() + '.jpg';
+//     file.mv(config.get(''))
+//   } catch (error) {
+//     console.log(error);
+//     resp.status(400).json({
+//       message: 'Upload avatar error',
+//     });
+//   }
+// };

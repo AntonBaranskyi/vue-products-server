@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import multer from 'multer';
 
 import userRouter from './routes/auth.js';
 import Order from './models/Order.js';
@@ -9,6 +10,8 @@ import Product from './models/Product.js';
 import { getAllUsers } from './controllers/userController.js';
 import { Server } from 'socket.io';
 import { createServer } from 'node:http';
+import { deleteOne } from './controllers/productController.js';
+import { deleteOrder } from './controllers/orderController.js';
 
 dotenv.config();
 
@@ -27,6 +30,17 @@ mongoose
 
 const app = express();
 const server = createServer(app);
+const storage = multer.diskStorage({
+  destination: (_, __, cb) => {
+    cb(null, 'src/uploads');
+  },
+  filename: (_, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
+
+const upload = multer({ storage });
+
 const io = new Server(server, {
   cors: {
     origins: [
@@ -90,6 +104,16 @@ app.get('/products', async (req, resp) => {
 });
 
 app.get('/users', getAllUsers);
+
+app.delete('/products/:id', deleteOne);
+
+app.delete('/orders/:id', deleteOrder);
+
+app.post('/upload', upload.single('image'), (req, resp) => {
+  resp.json({
+    url: `/uploads/${req.file.originalname}`,
+  });
+});
 
 server.listen(PORT, () => {
   console.log('SERVER IS WORKING on ' + PORT);

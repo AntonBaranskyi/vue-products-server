@@ -6,5 +6,5 @@ export const registerValidation = [
     min: 4,
   }),
   body('fullName', 'Plese write your name').isLength({ min: 3 }),
-  body('avatarUrl').optional().isURL(),
+  body('avatarUrl').optional(),
 ];
