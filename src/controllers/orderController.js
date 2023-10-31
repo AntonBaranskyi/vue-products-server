@@ -3,6 +3,23 @@ import Product from '../models/Product.js';
 
 import mongoose from 'mongoose';
 
+export const createOrder = async (req, resp) => {
+  try {
+    const doc = new Order({
+      title: req.body.title,
+    });
+
+    const order = await doc.save();
+
+    resp.json(order);
+  } catch (error) {
+    console.log(error);
+    return resp.status(500).json({
+      message: 'Cannot create order',
+    });
+  }
+};
+
 export const deleteOrder = async (req, resp) => {
   try {
     const orderId = req.params.id;

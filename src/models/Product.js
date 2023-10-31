@@ -21,8 +21,12 @@ const ProductSchema = new mongoose.Schema(
         isDefault: Boolean,
       },
     ],
-    // order: { type: Number, required: true },
-    order: { type: mongoose.Schema.Types.ObjectId, ref: 'Orders' },
+    order: {
+      // type: mongoose.Schema.Types.ObjectId,
+      type: Number,
+      ref: 'Orders',
+      required: true,
+    },
   },
   {
     timestamps: true,

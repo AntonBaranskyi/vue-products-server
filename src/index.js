@@ -10,8 +10,8 @@ import Product from './models/Product.js';
 import { getAllUsers } from './controllers/userController.js';
 import { Server } from 'socket.io';
 import { createServer } from 'node:http';
-import { deleteOne } from './controllers/productController.js';
-import { deleteOrder } from './controllers/orderController.js';
+import { createProduct, deleteOne } from './controllers/productController.js';
+import { createOrder, deleteOrder } from './controllers/orderController.js';
 
 dotenv.config();
 
@@ -102,6 +102,10 @@ app.get('/products', async (req, resp) => {
     resp.status(403);
   }
 });
+
+app.post('/products', createProduct);
+
+app.post('/orders', createOrder);
 
 app.get('/users', getAllUsers);
 
