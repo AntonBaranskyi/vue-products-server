@@ -5,8 +5,16 @@ import mongoose from 'mongoose';
 
 export const createOrder = async (req, resp) => {
   try {
+    const lastOrder = await Order.findOne({}, {}, { sort: { id: -1 } });
+
+    let newId = 1;
+    if (lastOrder) {
+      newId = lastOrder.id + 1;
+    }
+
     const doc = new Order({
       title: req.body.title,
+      id: newId,
     });
 
     const order = await doc.save();
