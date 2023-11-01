@@ -97,7 +97,7 @@ app.get('/orders', async (req, res) => {
 
 app.get('/products', async (req, resp) => {
   try {
-    const allProducts = await Product.find();
+    const allProducts = await Product.find().populate('user');
 
     resp.status(200).json(allProducts);
   } catch (error) {
