@@ -28,6 +28,8 @@ export const createProduct = async (req, resp) => {
 
     const product = await doc.save();
 
+    await product.populate('user');
+
     console.log(product);
 
     resp.json(product);
