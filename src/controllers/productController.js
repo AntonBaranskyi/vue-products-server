@@ -23,6 +23,7 @@ export const createProduct = async (req, resp) => {
         },
       ],
       order: req.body.order,
+      user: req.body.userId,
     });
 
     const product = await doc.save();

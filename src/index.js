@@ -13,6 +13,9 @@ import { createServer } from 'node:http';
 import { createProduct, deleteOne } from './controllers/productController.js';
 import { createOrder, deleteOrder } from './controllers/orderController.js';
 
+import checkAuth from './utils/checkAuth.js';
+import User from './models/User.js';
+
 dotenv.config();
 
 const { PORT = 5000 } = process.env;
@@ -112,6 +115,26 @@ app.get('/users', getAllUsers);
 app.delete('/products/:id', deleteOne);
 
 app.delete('/orders/:id', deleteOrder);
+
+app.get('/me', checkAuth, async (req, resp) => {
+  try {
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      return resp.json({
+        message: 'Not found user',
+      });
+    }
+
+    const { ...userData } = user._doc;
+
+    resp.json(userData);
+  } catch (error) {
+    resp.status(403).json({
+      message: 'Fail to get user',
+    });
+  }
+});
 
 app.post('/upload', upload.single('image'), (req, resp) => {
   resp.json({
