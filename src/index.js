@@ -20,6 +20,7 @@ import {
 } from './controllers/orderController.js';
 
 import checkAuth from './utils/checkAuth.js';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -40,7 +41,10 @@ const app = express();
 const server = createServer(app);
 const storage = multer.diskStorage({
   destination: (_, __, cb) => {
-    cb(null, 'src/uploads');
+    if (!fs.existsSync('uploads')) {
+      fs.mkdirSync('uploads');
+    }
+    cb(null, 'uploads');
   },
   filename: (_, file, cb) => {
     cb(null, file.originalname);
@@ -60,7 +64,7 @@ const io = new Server(server, {
 
 app.use(express.json());
 app.use(cors());
-app.use(express.static('static'));
+app.use('/uploads', express.static('src/uploads'));
 
 const usersCount = new Set();
 
@@ -70,9 +74,11 @@ io.on('connection', (socket) => {
 
   console.log(usersCount.size);
   socket.on('disconnect', () => {
-    console.log('user disconect');
+    console.log('user disconnect');
 
     usersCount.delete(socket.id);
+
+    io.emit('userCount', usersCount.size);
   });
 
   io.emit('userCount', usersCount.size);
