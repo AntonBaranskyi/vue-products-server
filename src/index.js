@@ -97,9 +97,24 @@ app.get('/orders', async (req, res) => {
 
 app.get('/products', async (req, resp) => {
   try {
-    const allProducts = await Product.find().populate('user');
+    const updatedProductsWithOrders = await Product.aggregate([
+      {
+        $lookup: {
+          from: 'orders',
+          localField: 'order',
+          foreignField: 'id',
+          as: 'orders',
+        },
+      },
+    ]);
 
-    resp.status(200).json(allProducts);
+    const productIds = updatedProductsWithOrders.map((product) => product._id);
+
+    const populatedProducts = await Product.find({
+      _id: { $in: productIds },
+    }).populate('user');
+
+    resp.status(200).json(populatedProducts);
   } catch (error) {
     console.log(error);
     resp.status(403);
