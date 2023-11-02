@@ -3,6 +3,26 @@ import Product from '../models/Product.js';
 
 import mongoose from 'mongoose';
 
+export const getAllOrders = async (req, res) => {
+  try {
+    const updatedOrdersWithProducts = await Order.aggregate([
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'id',
+          foreignField: 'order',
+          as: 'products',
+        },
+      },
+    ]);
+
+    res.status(200).json(updatedOrdersWithProducts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Помилка на сервері' });
+  }
+};
+
 export const createOrder = async (req, resp) => {
   try {
     const lastOrder = await Order.findOne({}, {}, { sort: { id: -1 } });

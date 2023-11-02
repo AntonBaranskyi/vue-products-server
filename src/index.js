@@ -5,16 +5,21 @@ import dotenv from 'dotenv';
 import multer from 'multer';
 
 import userRouter from './routes/auth.js';
-import Order from './models/Order.js';
-import Product from './models/Product.js';
-import { getAllUsers } from './controllers/userController.js';
+import { checkMe, getAllUsers } from './controllers/userController.js';
 import { Server } from 'socket.io';
 import { createServer } from 'node:http';
-import { createProduct, deleteOne } from './controllers/productController.js';
-import { createOrder, deleteOrder } from './controllers/orderController.js';
+import {
+  createProduct,
+  deleteOne,
+  getAllProducts,
+} from './controllers/productController.js';
+import {
+  createOrder,
+  deleteOrder,
+  getAllOrders,
+} from './controllers/orderController.js';
 
 import checkAuth from './utils/checkAuth.js';
-import User from './models/User.js';
 
 dotenv.config();
 
@@ -75,63 +80,9 @@ io.on('connection', (socket) => {
 
 app.use('/auth', userRouter);
 
-app.get('/orders', async (req, res) => {
-  try {
-    const updatedOrdersWithProducts = await Order.aggregate([
-      {
-        $lookup: {
-          from: 'products',
-          localField: 'id',
-          foreignField: 'order',
-          as: 'products',
-        },
-      },
-    ]);
+app.get('/orders', getAllOrders);
 
-    res.status(200).json(updatedOrdersWithProducts);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Помилка на сервері' });
-  }
-});
-
-app.get('/products', async (req, resp) => {
-  try {
-    const updatedProductsWithOrders = await Product.aggregate([
-      {
-        $lookup: {
-          from: 'orders',
-          localField: 'order',
-          foreignField: 'id',
-          as: 'orders',
-        },
-      },
-    ]);
-
-    console.log(updatedProductsWithOrders);
-
-    const productIds = updatedProductsWithOrders.map((product) => product._id);
-
-    const populatedProducts = await Product.find({
-      _id: { $in: productIds },
-    }).populate('user');
-
-    const productsWithOrdersAndUsers = updatedProductsWithOrders.map(
-      (product) => {
-        const foundProduct = populatedProducts.find((populatedProduct) =>
-          populatedProduct._id.equals(product._id)
-        );
-        product.user = foundProduct.user;
-        return product;
-      }
-    );
-
-    resp.status(200).json(productsWithOrdersAndUsers);
-  } catch (error) {
-    console.log(error);
-    resp.status(403);
-  }
-});
+app.get('/products', getAllProducts);
 
 app.post('/products', createProduct);
 
@@ -143,25 +94,7 @@ app.delete('/products/:id', deleteOne);
 
 app.delete('/orders/:id', deleteOrder);
 
-app.get('/me', checkAuth, async (req, resp) => {
-  try {
-    const user = await User.findById(req.userId);
-
-    if (!user) {
-      return resp.json({
-        message: 'Not found user',
-      });
-    }
-
-    const { ...userData } = user._doc;
-
-    resp.json(userData);
-  } catch (error) {
-    resp.status(403).json({
-      message: 'Fail to get user',
-    });
-  }
-});
+app.get('/me', checkAuth, checkMe);
 
 app.post('/upload', upload.single('image'), (req, resp) => {
   resp.json({

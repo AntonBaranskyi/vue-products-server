@@ -96,17 +96,22 @@ export const getAllUsers = async (req, resp) => {
   }
 };
 
-// export const uploadAvatar = async (req, resp) => {
-//   try {
-//     const file = req.files;
+export const checkMe = async (req, resp) => {
+  try {
+    const user = await User.findById(req.userId);
 
-//     const user = await User.findById(req.user.id);
-//     const avatarName = uuid.v4() + '.jpg';
-//     file.mv(config.get(''))
-//   } catch (error) {
-//     console.log(error);
-//     resp.status(400).json({
-//       message: 'Upload avatar error',
-//     });
-//   }
-// };
+    if (!user) {
+      return resp.json({
+        message: 'Not found user',
+      });
+    }
+
+    const { ...userData } = user._doc;
+
+    resp.json(userData);
+  } catch (error) {
+    resp.status(403).json({
+      message: 'Fail to get user',
+    });
+  }
+};
