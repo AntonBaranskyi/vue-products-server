@@ -68,9 +68,20 @@ export const createProduct = async (req, resp) => {
 
     await product.populate('user');
 
-    console.log(product);
+    const updatedProductsWithOrders = await Product.aggregate([
+      {
+        $lookup: {
+          from: 'orders',
+          localField: 'order',
+          foreignField: 'id',
+          as: 'orders',
+        },
+      },
+    ]);
 
-    resp.json(product);
+    console.log(updatedProductsWithOrders);
+
+    resp.json(updatedProductsWithOrders[0]);
   } catch (error) {
     console.log(error);
     return resp.status(500).json({
