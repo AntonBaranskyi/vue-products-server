@@ -66,7 +66,9 @@ export const createProduct = async (req, resp) => {
 
     const product = await doc.save();
 
-    await product.populate('user');
+    const withUser = await product.populate('user');
+
+    console.log(withUser);
 
     const updatedProductsWithOrders = await Product.aggregate([
       {
@@ -79,9 +81,7 @@ export const createProduct = async (req, resp) => {
       },
     ]);
 
-    console.log(updatedProductsWithOrders);
-
-    resp.json(updatedProductsWithOrders[0]);
+    resp.json(updatedProductsWithOrders[updatedProductsWithOrders.length - 1]);
   } catch (error) {
     console.log(error);
     return resp.status(500).json({
