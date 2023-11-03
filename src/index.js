@@ -104,7 +104,7 @@ app.get('/me', checkAuth, checkMe);
 
 app.post('/upload', upload.single('image'), (req, resp) => {
   resp.json({
-    url: `/uploads/${req.file.originalname}`,
+    url: `src/uploads/${req.file.originalname}`,
   });
 });
 
